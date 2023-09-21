@@ -33,18 +33,22 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B package --file s3/pom.xml
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: s3-artifact
+        path: s3/target/s3-0.0.1-SNAPSHOT.jar
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Copy artifacts from build job
+    - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
-        name: my-artifact-name
-        path: s3/target
-
+        name: s3-artifact
+        
     - name: Execute Jar File
       run: |
         sudo kill -9 $(sudo lsof -t -i:80) || true  # Stop any previous service running on port 80
