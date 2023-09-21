@@ -10,7 +10,7 @@ public class home {
 	{
 		return "test..............";
 	}
-	@GetMapping("/")
+	@GetMapping
 	public String hometext() 
 	{
 		return "checking CI-CD running ........";
