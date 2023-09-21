@@ -8,7 +8,7 @@ public class home {
 	@GetMapping("/test")
 	public String hometext1() 
 	{
-		return "test............";
+		return "test........";
 	}
 	@GetMapping
 	public String hometext() 
