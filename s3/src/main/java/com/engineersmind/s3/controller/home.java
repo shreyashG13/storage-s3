@@ -5,10 +5,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class home {
 	
 	
-	@GetMapping
+	@GetMapping("/test")
+	public String hometext1() 
+	{
+		return "test..............";
+	}
+	@GetMapping("/")
 	public String hometext() 
 	{
 		return "checking CI-CD running ........";
 	}
-
 }
