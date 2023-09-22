@@ -61,7 +61,7 @@ jobs:
     # Optional: Perform any tests or validation
     - name: Test Service
       run: |
-        response=$(curl -sS http://54.196.109.209)
+        response=$(curl -sS http://54.87.170.87)
         # Use curl to send a GET request to your service's endpoint
 
         # Check the HTTP response code (e.g., 200 for success)
