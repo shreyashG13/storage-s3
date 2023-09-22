@@ -13,6 +13,6 @@ public class home {
 	@GetMapping
 	public String hometext() 
 	{
-		return "checking CI-CD running ........";
+		return "checking CI-CD running ....";
 	}
 }
