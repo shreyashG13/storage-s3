@@ -32,29 +32,30 @@ jobs:
 
 
     - name: Execute Jar File
-      run: sudo kill -9 'sudo lsof -t -i:80' & sudo java -jar /home/ubuntu/actions-runner/_work/storage-s3/storage-s3/s3/target/s3-0.0.1-SNAPSHOT.jar &
+      run: sudo kill -9 'sudo lsof -t -i:8080' & sudo java -jar /home/ubuntu/actions-runner/_work/storage-s3/storage-s3/s3/target/s3-0.0.1-SNAPSHOT.jar &
+      
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     # - name: Update dependency graph
     #   uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d
 
-    #Optional: Perform any tests or validation
-    # - name: Test Service
-    #   run: |
-    #     response=$(curl -sS http://3.87.0.181:8080)
-    #     # Use curl to send a GET request to your service's endpoint
+    # Optional: Perform any tests or validation
+    - name: Test Service
+      run: |
+        response=$(curl -sSI http://localhost:8080)
+        # Use curl to send a GET request to your service's endpoint
 
-    #     # Check the HTTP response code (e.g., 200 for success)
-    #     http_status=$(echo "$response" | head -n 1 | cut -d ' ' -f 2)
+        # Check the HTTP response code (e.g., 200 for success)
+        http_status=$(echo "$response" | head -n 1 | cut -d ' ' -f 2)
 
-    #     if [ "$http_status" = "200" ]; then
-    #       echo "Service is running and responded with HTTP 200 OK"
-    #       # Add additional validation checks if needed
-    #     else
-    #       echo "Service did not respond with HTTP 200 OK"
-    #       # You can add more error handling or notifications here
-    #       exit 1  # Exit with an error code
-    #     fi
+        if [ "$http_status" = "200" ]; then
+          echo "Service is running and responded with HTTP 200 OK"
+          # Add additional validation checks if needed
+        else
+          echo "Service did not respond with HTTP 200 OK"
+          # You can add more error handling or notifications here
+          exit 1  # Exit with an error code
+        fi
     # Optional: Deploy additional services or configurations as needed
     # ...
 
