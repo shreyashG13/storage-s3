@@ -5,7 +5,6 @@
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
-
 name: Java CI with Maven
 
 on:
@@ -15,49 +14,57 @@ on:
     branches: [ "main" ]
 
 jobs:
+
+  # Build Job
   build:
-
     runs-on: self-hosted
-
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up JDK 11
       uses: actions/setup-java@v2
       with:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+
     - name: Build with Maven
       run: mvn -B package --file s3/pom.xml
 
-
-    - name: Execute Jar File
-      run: sudo kill -9 'sudo lsof -t -i:8080' & sudo java -jar /home/ubuntu/actions-runner/_work/storage-s3/storage-s3/s3/target/s3-0.0.1-SNAPSHOT.jar &
-      
-
-    # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
+    # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts
     # - name: Update dependency graph
     #   uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d
 
-    # Optional: Perform any tests or validation
+  # Deploy Job
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+    - name: Execute Jar File
+      run: |
+        sudo kill -9 $(sudo lsof -t -i:8080) || true
+        sudo java -jar /home/ubuntu/actions-runner/_work/storage-s3/storage-s3/s3/target/s3-0.0.1-SNAPSHOT.jar &
+
+  # Test Job
+  test:
+    needs: deploy
+    runs-on: self-hosted
+    steps:
     - name: Test Service
       run: |
+        sleep 30  # Optional: Wait for the service to fully start
         response=$(curl -sSI http://localhost:8080)
-        # Use curl to send a GET request to your service's endpoint
 
-        # Check the HTTP response code (e.g., 200 for success)
+        # Check the HTTP response code
         http_status=$(echo "$response" | head -n 1 | cut -d ' ' -f 2)
 
         if [ "$http_status" = "200" ]; then
           echo "Service is running and responded with HTTP 200 OK"
-          # Add additional validation checks if needed
         else
           echo "Service did not respond with HTTP 200 OK"
-          # You can add more error handling or notifications here
-          exit 1  # Exit with an error code
+          exit 1
         fi
-    # Optional: Deploy additional services or configurations as needed
-    # ...
+
 
 # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
 # - name: Update dependency graph
