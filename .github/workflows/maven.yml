@@ -58,23 +58,23 @@ jobs:
     - name: Wait for Service to Start
       run: sleep 10  # Adjust as needed, depending on your service's startup time
 
-    # Optional: Perform any tests or validation
-    # - name: Test Service
-    #   run: |
-    #     response=$(curl -sS http://54.87.170.87)
-    #     # Use curl to send a GET request to your service's endpoint
+    #Optional: Perform any tests or validation
+    - name: Test Service
+      run: |
+        response=$(curl -sS http://3.87.0.181:8080)
+        # Use curl to send a GET request to your service's endpoint
 
-    #     # Check the HTTP response code (e.g., 200 for success)
-    #     http_status=$(echo "$response" | head -n 1 | cut -d ' ' -f 2)
+        # Check the HTTP response code (e.g., 200 for success)
+        http_status=$(echo "$response" | head -n 1 | cut -d ' ' -f 2)
 
-    #     if [ "$http_status" = "200" ]; then
-    #       echo "Service is running and responded with HTTP 200 OK"
-    #       # Add additional validation checks if needed
-    #     else
-    #       echo "Service did not respond with HTTP 200 OK"
-    #       # You can add more error handling or notifications here
-    #       exit 1  # Exit with an error code
-    #     fi
+        if [ "$http_status" = "200" ]; then
+          echo "Service is running and responded with HTTP 200 OK"
+          # Add additional validation checks if needed
+        else
+          echo "Service did not respond with HTTP 200 OK"
+          # You can add more error handling or notifications here
+          exit 1  # Exit with an error code
+        fi
     # Optional: Deploy additional services or configurations as needed
     # ...
 
