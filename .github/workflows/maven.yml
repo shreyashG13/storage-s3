@@ -19,15 +19,22 @@ jobs:
   build:
     runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v2
+    - name: Check if JDK 11 is set up
+      id: check-jdk
+      run: |
+        if java -version 2>&1 | grep -q "11"; then
+          echo "::set-output name=setup-needed::false"
+        else
+          echo "::set-output name=setup-needed::true"
+        fi
 
     - name: Set up JDK 11
+      if: steps.check-jdk.outputs.setup-needed == 'true'
       uses: actions/setup-java@v2
       with:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
-
     - name: Build with Maven
       run: mvn -B package --file s3/pom.xml
 
