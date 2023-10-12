@@ -55,13 +55,13 @@ jobs:
           echo "Java process found with PID $PID. Attempting to terminate..."
           
           # Graceful shutdown with a 10-second timeout
-          kill $PID
+          sudo kill $PID || echo "Error trying to gracefully terminate Java process."
           sleep 10
           
           # Check if the process is still running, and force kill if necessary
           if ps -p $PID > /dev/null; then
              echo "Java process did not terminate gracefully. Force killing..."
-             kill -9 $PID
+             sudo kill -9 $PID || echo "Error force killing Java process."
           fi
         else
           echo "No Java process found running."
