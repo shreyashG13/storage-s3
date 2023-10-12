@@ -19,17 +19,17 @@ jobs:
   build:
     runs-on: self-hosted
     steps:
-    # - name: Check if JDK 11 is set up
-    #   id: check-jdk
-    #   run: |
-    #     if java -version 2>&1 | grep -q "11"; then
-    #       echo "::set-output name=setup-needed::false"
-    #     else
-    #       echo "::set-output name=setup-needed::true"
-    #     fi
+    - name: Check if JDK 11 is set up
+      id: check-jdk
+      run: |
+        if java -version 2>&1 | grep -q "11"; then
+          echo "::set-output name=setup-needed::false"
+        else
+          echo "::set-output name=setup-needed::true"
+        fi
 
     - name: Set up JDK 11
-      # if: steps.check-jdk.outputs.setup-needed == 'true'
+      if: steps.check-jdk.outputs.setup-needed == 'true'
       uses: actions/setup-java@v2
       with:
         java-version: '11'
@@ -50,7 +50,7 @@ jobs:
     steps:
     - name: Execute Jar File
       run: |
-        sudo kill -9 $(sudo lsof -t -i:8080) || true
+        sudo kill -9 $(sudo lsof -t -i:443) || true
         sudo java -jar /home/ubuntu/actions-runner/_work/storage-s3/storage-s3/s3/target/s3-0.0.1-SNAPSHOT.jar &
 
   # Test Job
@@ -61,7 +61,7 @@ jobs:
     - name: Test Service
       run: |
         sleep 30  # Optional: Wait for the service to fully start
-        response=$(curl -sSI https://localhost)
+        response=$(curl -k -sSI https://localhost)
 
         # Check the HTTP response code
         http_status=$(echo "$response" | head -n 1 | cut -d ' ' -f 2)
