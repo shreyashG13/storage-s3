@@ -51,7 +51,10 @@ jobs:
     - name: Execute Jar File
       run: |
         sudo kill -9 $(sudo lsof -t -i:443) || true
-        sudo java -jar /home/ubuntu/actions-runner/_work/storage-s3/storage-s3/s3/target/s3-0.0.1-SNAPSHOT.jar &
+        sudo java -jar /home/ubuntu/actions-runner/_work/storage-s3/storage-s3/s3/target/s3-0.0.1-SNAPSHOT.jar > app_log.txt 2>&1 &
+        sleep 10  # Wait a bit
+        tail -n 50 app_log.txt  # Display the last 50 lines of the log
+
 
   # Test Job
   test:
