@@ -61,7 +61,7 @@ jobs:
     - name: Test Service
       run: |
         sleep 30  # Optional: Wait for the service to fully start
-        response=$(curl -k -sSI https://localhost)
+        response=$(curl -sSI https://localhost)
 
         # Check the HTTP response code
         http_status=$(echo "$response" | head -n 1 | cut -d ' ' -f 2)
