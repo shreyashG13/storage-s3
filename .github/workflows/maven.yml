@@ -48,14 +48,40 @@ jobs:
     needs: build
     runs-on: self-hosted
     steps:
+    - name: Kill previous instance if exists
+      run: sudo kill -9 $(sudo lsof -t -i:443) || true
+  
     - name: Execute Jar File
+      run: sudo java -jar /home/ubuntu/actions-runner/_work/storage-s3/storage-s3/s3/target/s3-0.0.1-SNAPSHOT.jar > app_log.txt 2>&1 &
+  
+    - name: Monitor Application Logs for Start/Error
       run: |
-        sudo kill -9 $(sudo lsof -t -i:443) || true
-        sudo java -jar /home/ubuntu/actions-runner/_work/storage-s3/storage-s3/s3/target/s3-0.0.1-SNAPSHOT.jar > app_log.txt 2>&1 &
-        sleep 10  # Wait a bit
-        tail -n 50 app_log.txt  # Display the last 50 lines of the log
-
-
+        timeout_duration=60  # 1 minutes in seconds
+        check_interval=10     # check every 10 seconds
+        total_wait=0
+  
+        while [ $total_wait -lt $timeout_duration ]; do
+          # Check for your specific startup message. Replace "YourStartupMessageHere" accordingly.
+          if grep -q "YourStartupMessageHere" app_log.txt; then
+            echo "Application started successfully!"
+            exit 0
+          fi
+          
+          # Check for errors or exceptions. Adapt as necessary.
+          if grep -E -q "Exception|Error" app_log.txt; then
+            echo "Error detected in application logs!"
+            tail -n 50 app_log.txt
+            exit 1
+          fi
+  
+          sleep $check_interval
+          total_wait=$((total_wait + check_interval))
+        done
+  
+        echo "Deployment timeout: Application did not start successfully within 6 minutes."
+        tail -n 50 app_log.txt
+        exit 1
+  
   # Test Job
   test:
     needs: deploy
@@ -63,18 +89,18 @@ jobs:
     steps:
     - name: Test Service
       run: |
-        sleep 30  # Optional: Wait for the service to fully start
         response=$(curl -sSI https://localhost)
-
+  
         # Check the HTTP response code
         http_status=$(echo "$response" | head -n 1 | cut -d ' ' -f 2)
-
+  
         if [ "$http_status" = "200" ]; then
           echo "Service is running and responded with HTTP 200 OK"
         else
           echo "Service did not respond with HTTP 200 OK"
           exit 1
         fi
+
 
 
 # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
