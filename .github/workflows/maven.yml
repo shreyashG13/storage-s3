@@ -47,23 +47,27 @@ jobs:
     steps:
     - name: Kill previous instance if exists
       run: |
+        set -euxo pipefail  # This makes the script verbose and fail on the first error
         # Check for a running java process
         PID=$(pgrep java)
     
-        # If PID exists, attempt to kill the process
-        if [[ ! -z "$PID" ]]; then
+        # Loop over each PID to handle them separately
+        for PID in $PIDS; do
           echo "Java process found with PID $PID. Attempting to terminate..."
-          
+      
           # Graceful shutdown with a 10-second timeout
-          sudo kill $PID || echo "Error trying to gracefully terminate Java process."
+          sudo kill $PID || (echo "Error trying to gracefully terminate Java process with PID $PID" && exit 1)
           sleep 10
-          
+      
           # Check if the process is still running, and force kill if necessary
           if ps -p $PID > /dev/null; then
-             echo "Java process did not terminate gracefully. Force killing..."
-             sudo kill -9 $PID || echo "Error force killing Java process."
+            echo "Java process with PID $PID did not terminate gracefully. Force killing..."
+            sudo kill -9 $PID || (echo "Error force killing Java process with PID $PID" && exit 1)
           fi
-        else
+        done
+        
+        # If no PIDs were found
+        if [[ -z "$PIDS" ]]; then
           echo "No Java process found running."
         fi
 
