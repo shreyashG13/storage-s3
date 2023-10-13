@@ -48,9 +48,9 @@ jobs:
     - name: Kill previous instance if exists
       run: |
         set -euxo pipefail  # This makes the script verbose and fail on the first error
-        # Check for a running java process
-        PID=$(pgrep java)
-    
+        
+        PIDS=$(pgrep java || true)  # Use || true to avoid the script from failing when pgrep returns no PIDs
+        
         # Loop over each PID to handle them separately
         for PID in $PIDS; do
           echo "Java process found with PID $PID. Attempting to terminate..."
@@ -65,12 +65,11 @@ jobs:
             sudo kill -9 $PID || (echo "Error force killing Java process with PID $PID" && exit 1)
           fi
         done
-        
+  
         # If no PIDs were found
         if [[ -z "$PIDS" ]]; then
           echo "No Java process found running."
         fi
-
     - name: Execute Jar File
       run: |
         sudo java -jar /home/ubuntu/actions-runner/_work/storage-s3/storage-s3/s3/target/s3-0.0.1-SNAPSHOT.jar > app_log.txt 2>&1 &
