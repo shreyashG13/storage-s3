@@ -84,7 +84,7 @@ jobs:
     steps:
     - name: Test Service
       run: |
-        response=$(curl -sSI https://localhost)
+        response=$(curl -sSI http://localhost:8080)
   
         # Check the HTTP response code
         http_status=$(echo "$response" | head -n 1 | cut -d ' ' -f 2)
